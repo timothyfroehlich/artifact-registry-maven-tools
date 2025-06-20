@@ -1,9 +1,13 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+}
+
 dependencies {
     implementation('com.google.http-client:google-http-client:1.46.3')
     implementation('com.google.http-client:google-http-client-jackson2:1.46.3')
     implementation('com.google.auth:google-auth-library-oauth2-http:1.33.1')
     implementation group: 'org.slf4j', name: 'slf4j-api', version:'2.0.17'
-
     // override any guava:*-android dependency with jre dependency
     implementation group: 'com.google.guava', name: 'guava', version:'33.4.6-jre'
 
@@ -18,4 +22,18 @@ dependencies {
     }
 
     testImplementation group: 'junit', name: 'junit', version: '4.13.2'
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            name = "testRepo"
+            url = uri("file://${rootProject.buildDir}/repo")
+        }
+    }
 }

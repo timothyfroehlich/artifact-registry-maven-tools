@@ -1,11 +1,27 @@
 plugins {
     id 'java-gradle-plugin'
     id 'com.gradle.plugin-publish' version '1.3.1'
+    id 'maven-publish'
+    id 'org.jetbrains.kotlin.jvm' version '2.1.20'
 }
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(8))
+    }
+}
+
+def integrationTest = sourceSets.create("integrationTest")
+
 
 dependencies {
 	implementation gradleApi()
 	implementation group: 'com.google.auth', name: 'google-auth-library-oauth2-http', version: '1.33.1'
+
+    integrationTestImplementation gradleTestKit()
+    integrationTestImplementation 'junit:junit:4.13.2'
+    integrationTestImplementation 'commons-io:commons-io:2.11.0'
+    integrationTestImplementation "org.jetbrains.kotlin:kotlin-test-junit:2.1.20"
 }
 
 gradlePlugin {
@@ -18,6 +34,23 @@ gradlePlugin {
             description = 'A Gradle plugin used to connect to Artifact Registry Maven repositories.'
             tags.set(['artifactregistry', 'gcp'])
             implementationClass = 'com.google.cloud.artifactregistry.gradle.plugin.ArtifactRegistryGradlePlugin'
+        }
+    }
+}
+
+tasks.register('integrationTest', Test) {
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath
+    useJUnit()
+}
+
+
+
+publishing {
+    repositories {
+        maven {
+            name = "testRepo"
+            url = uri("file://${rootProject.buildDir}/repo")
         }
     }
 }
